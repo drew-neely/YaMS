@@ -41,7 +41,7 @@ def get_score(seqs, scoring_config=blast_config) :
 					total_gap_penalty += scoring_config.open_gap
 			else :
 				nas.append(na)
-		score += total_gap_penalty
+		score -= total_gap_penalty
 		nas = combinations(nas, 2) # generate all combintions of length 2
 		for na_pair in nas :
 			score += scoring_config[na_pair]

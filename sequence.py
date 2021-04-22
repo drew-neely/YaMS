@@ -15,8 +15,13 @@ class NucleicAcid(Enum):
 	ANY = 5
 
 	def __str__(self) :
-		return code[self.value]
+		return code[self.value]	
 
+	def __repr__(self) :
+		return self.name
+
+	def is_acid(self) :
+		return self.value < 4
 
 
 class Sequence :
@@ -39,10 +44,22 @@ class Sequence :
 			if isinstance(acid, Iterable) :
 				self.seq[index] = [a.value for a in acid]
 			else :
-				print(index, acid.value)
 				self.seq[index] = [acid.value]
 		else :
 			self.seq[index] = acid.value
+
+	def insert_gap(self, index) :
+		if index < len(self.seq) - 1 :
+			self.seq.insert(index, NucleicAcid.GAP.value)
+
+	def __len__(self) :
+		return len(self.seq)
+
+	def __repr__(self) :
+		return f'<{self.name} seq>'
+
+	def __str__(self) :
+		return f">{self.name}\n{''.join([str(a) for a in self])}"
 
 	def copy(self) :
 		return deepcopy(self)
