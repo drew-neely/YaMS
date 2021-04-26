@@ -1,4 +1,4 @@
-from sequence import NucleicAcid
+from sequence import NucleicAcid, Profile, Sequence
 from itertools import combinations
 
 class Scoring_Config :
@@ -24,7 +24,15 @@ blast_config = Scoring_Config([
 	[ -4, -4, -4, 5 ],
 ], 9, 1)
 
-def get_score(seqs, scoring_config=blast_config) :
+def get_score(_seqs, scoring_config=blast_config) :
+	seqs = []
+	for seq in _seqs :
+		if isinstance(seq, Profile) :
+			seqs += seq.seqs
+		elif isinstance(seq, Sequence) :
+			seqs.append(seq)
+		else :
+			assert False
 	score = 0
 	for i in range(max([len(s) for s in seqs])) :
 		total_gap_penalty = 0

@@ -1,6 +1,7 @@
 from enum import Enum, unique
 from copy import deepcopy
 from typing import Iterable
+from collections import Counter
 
 
 code = ['a', 'c', 'g', 't', '-', 'n',]
@@ -23,6 +24,49 @@ class NucleicAcid(Enum):
 	def is_acid(self) :
 		return self.value < 4
 
+class Profile :
+	def __init__(self, seqs) :
+		self.seqs = seqs
+		self.seq_len = len(self.seqs[0])
+		for seq in seqs :
+			if len(seq) != self.seq_len :
+				raise ValueError("All sequences in profile must be same length")
+	
+	def __getitem__(self, index) :
+		if isinstance(index, slice) :
+			return [self[i] for i in range(index.start, index.stop, index.step)]
+		else :
+			entries = Counter()
+			open_gaps = 0
+			cont_gaps = 0
+			for seq in self.seqs :
+				na = seq[index] if index < len(seq) else NucleicAcid.GAP
+				if na == NucleicAcid.GAP and index == 0 :
+					open_gaps += 1
+					continue
+				prev_na = seq[index-1] if index != 0 and index - 1< len(seq) else NucleicAcid.GAP
+				if na == NucleicAcid.GAP :
+					if prev_na == NucleicAcid.GAP :
+						cont_gaps += 1
+					else :
+						open_gaps += 1
+				else :
+					entries[na] += 1
+			return (entries, open_gaps, cont_gaps)
+
+	def insert_gap(self, index) :
+		for seq in self.seqs :
+			seq.insert_gap(index)
+	
+	def __len__(self) :
+		return len(self.seqs)
+
+	def __repr__(self) :
+		return f"<PROF {' '.join([seq.name for seq in self.seqs])}>"
+	
+	def __str__(self) :
+		return '\n'.join([str(seq) for seq in self.seqs])
+				
 
 class Sequence :
 	def __init__(self, name, seq) :
@@ -49,14 +93,14 @@ class Sequence :
 			self.seq[index] = acid.value
 
 	def insert_gap(self, index) :
-		if index < len(self.seq) - 1 :
+		if index <= len(self.seq) :
 			self.seq.insert(index, NucleicAcid.GAP.value)
 
 	def __len__(self) :
 		return len(self.seq)
 
 	def __repr__(self) :
-		return f'<{self.name} seq>'
+		return f'<SEQ {self.name}>'
 
 	def __str__(self) :
 		return f">{self.name}\n{''.join([str(a) for a in self])}"
