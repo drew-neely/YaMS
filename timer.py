@@ -1,8 +1,9 @@
 from time import time
+from collections import OrderedDict
 
 start_times = []
 
-named_times = {}
+named_times = OrderedDict()
 
 class Timer :
 
@@ -40,4 +41,9 @@ class Timer :
 		assert start is None, f"Logging unstopped timer {id}"
 		print(f'Time elapsed for timer {id}: {total:5.2}s')
 		if reset :
-			named_times[id] = (0, None)
+			del named_times[id]
+
+	@staticmethod
+	def log_all(reset=True) :
+		for id in list(named_times.keys()) :
+			Timer.log(id, reset=reset)

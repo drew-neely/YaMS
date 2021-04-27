@@ -36,7 +36,7 @@ class Profile :
 		if isinstance(index, slice) :
 			return [self[i] for i in range(index.start, index.stop, index.step)]
 		else :
-			entries = Counter()
+			entries = [0] * 4
 			open_gaps = 0
 			cont_gaps = 0
 			for seq in self.seqs :
@@ -51,7 +51,7 @@ class Profile :
 					else :
 						open_gaps += 1
 				else :
-					entries[na] += 1
+					entries[na.value] += 1
 			return (entries, open_gaps, cont_gaps)
 
 	def insert_gap(self, index) :

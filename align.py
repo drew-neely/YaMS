@@ -47,9 +47,7 @@ def nw_pp_test(s1, s2) :
 	score = get_score([s1, s2])
 	print(f"nw_score = {nw_score}, score = {score}")
 
-	Timer.log(alignment_function.__name__)
-	if alignment_function == needleman_wunsch_pp :
-		Timer.log("get_match_score")
+	Timer.log_all()
 
 	# print(s1)
 	# print(s2)
