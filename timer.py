@@ -35,15 +35,20 @@ class Timer :
 				print(f'Time elapsed: {t:5.2}s')
 
 	@staticmethod
-	def log(id, reset=True) :
+	def log(id, log=True, reset=True) :
 		assert id in named_times, f"timer for {id} not found"
 		total, start = named_times[id]
 		assert start is None, f"Logging unstopped timer {id}"
-		print(f'Time elapsed for timer {id}: {total:5.2}s')
+		if(log) :
+			print(f'Time elapsed for timer {id}: {total:5.2}s')
 		if reset :
 			del named_times[id]
+		return total
 
 	@staticmethod
-	def log_all(reset=True) :
+	def log_all(log=True, reset=True) :
+		res = {}
 		for id in list(named_times.keys()) :
-			Timer.log(id, reset=reset)
+			total = Timer.log(id, log=log, reset=reset)
+			res[id] = total
+		return res

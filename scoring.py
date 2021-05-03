@@ -32,7 +32,7 @@ def get_score(_seqs, scoring_config=blast_config) :
 		elif isinstance(seq, Sequence) :
 			seqs.append(seq)
 		else :
-			assert False
+			assert False, f'input "{seq}"'
 	score = 0
 	for i in range(max([len(s) for s in seqs])) :
 		total_gap_penalty = 0

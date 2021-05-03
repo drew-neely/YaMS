@@ -59,9 +59,8 @@ def needleman_wunsch_ss(seq1, seq2, scoring_config=blast_config) :
 	"""
 		Fill in tables and arrows
 	"""
-	starting_diags = list(zip(range(1,m), [1]*(m-1))) + list(zip([m-1]*(n-2), range(2,n)))
-	for row, col in starting_diags :
-		while row > 0 and col < n :
+	for row in range(1, m) :
+		for col in range(1, n) :
 			# Fill in matricies at (row, col) - It is guranteed tht (row-1,col),(row-1,col-1), and (ro1, col-1) exist			
 
 			diag_idx = (row-1)*n + (col-1)
@@ -84,7 +83,6 @@ def needleman_wunsch_ss(seq1, seq2, scoring_config=blast_config) :
 				dmat[row_col_idx] = LEFT_ARROW
 			else :
 				assert(False)
-			row, col = row - 1, col + 1
 	"""
 		Parse arrows to add gaps
 	"""
@@ -208,7 +206,6 @@ def needleman_wunsch_pp(prof1, prof2, scoring_config=blast_config) :
 		gap_scores_2.append(get_gap_score(og2, cg2, scoring_config))
 	
 	# get match comparison scores for all pairs of indecies
-	Timer.start("match_scores_12")
 	match_scores_12 = [None] * (m * n)
 	nas = [0] * 4
 	for row in range(1, m) :
@@ -218,27 +215,19 @@ def needleman_wunsch_pp(prof1, prof2, scoring_config=blast_config) :
 			for i in range(4) :
 				nas[i] = nas1[i] + nas2[i]
 			match_scores_12[row * n + col] = get_match_score(nas, scoring_config)
-	Timer.end("match_scores_12")
-	
-	
+
 	"""
 		Fill in tables and arrows
 	"""
-	starting_diags = list(zip(range(1,m), [1]*(m-1))) + list(zip([m-1]*(n-2), range(2,n)))
-	for row, col in starting_diags :
-		while row > 0 and col < n :
+	for row in range(1, m) :
+		for col in range(1, n) :
 			diag_idx = (row-1)*n + (col-1)
 			left_idx = row * n + (col-1)
 			up_idx = (row - 1) * n + col
 			row_col_idx = row * n + col
 
 			# Fill in matricies at (row, col) - It is guranteed tht (row-1,col),(row-1,col-1), and (ro1, col-1) exist
-			# if row == col  and row % 100 == 0:
-			# 	print(row)
-			# print(f'({row-1}, {col-1})')
 			(nas1, og1, cg1), (nas2, og2, cg2) = index_info_1[col-1], index_info_2[row-1]
-			# print(f"\tacids_1: {nas1}, og1: {og1}, cg1: {cg1}")
-			# print(f"\tacids_2: {nas2}, og2: {og2}, cg1: {cg2}")
 
 			# calculate reusable variables
 			match_score_12 = match_scores_12[row_col_idx]
@@ -279,7 +268,6 @@ def needleman_wunsch_pp(prof1, prof2, scoring_config=blast_config) :
 				# print("\tLEFT")
 			else :
 				assert(False)
-			row, col = row - 1, col + 1
 	# print2darr(smat)
 	# print()
 	# print2darr(dmat)
