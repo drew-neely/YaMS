@@ -86,7 +86,7 @@ def pairwise_distance_nw(seq1, seq2, i, q) :
 	seq1 = deepcopy(seq1)
 	seq2 = deepcopy(seq2)
 	needleman_wunsch_ss(seq1, seq2)
-	return (get_score([seq1, seq2]), i, q)
+	return (get_score(seq1, seq2), i, q)
 
 def get_dmat_nw(seqs, threads) :
 	mat = []

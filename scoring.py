@@ -24,15 +24,22 @@ blast_config = Scoring_Config([
 	[ -4, -4, -4, 5 ],
 ], 9, 1)
 
-def get_score(_seqs, scoring_config=blast_config) :
+def flatten_args(*_seqs) :
 	seqs = []
 	for seq in _seqs :
 		if isinstance(seq, Profile) :
 			seqs += seq.seqs
 		elif isinstance(seq, Sequence) :
 			seqs.append(seq)
+		elif isinstance(seq, list) or isinstance(seq, tuple):
+			for e in seq :
+				seqs += flatten_args(e)
 		else :
-			assert False, f'input "{seq}"'
+			assert False, f'input type: {type(seq)} -\n"{seq}"'
+	return seqs
+
+def get_score(*_seqs, scoring_config=blast_config) :
+	seqs = flatten_args(_seqs)
 	score = 0
 	for i in range(max([len(s) for s in seqs])) :
 		total_gap_penalty = 0

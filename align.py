@@ -31,7 +31,7 @@ def worker(in_channel, out_channel, config=blast_config) :
 			assert isinstance(s1, Sequence) or isinstance(s1, Profile), f"worker input s1 must be tuple of 2 seqs: {repr(s1)}"
 			assert isinstance(s2, Sequence) or isinstance(s2, Profile), f"worker input s2 must be tuple of 2 seqs: {repr(s1)}"
 			
-			start_score = get_score([s1, s2])
+			start_score = get_score(s1, s2, scoring_config=config)
 			names = (repr(s1), repr(s2))
 
 			alignment_function = None
@@ -50,7 +50,7 @@ def worker(in_channel, out_channel, config=blast_config) :
 				assert(False), "invalid pair of sequences"
 
 			nw_score = alignment_function(s1, s2, scoring_config=config)
-			score = get_score([s1, s2], scoring_config=config)
+			score = get_score(s1, s2, scoring_config=config)
 			time_elapsed = Timer.log(alignment_function.__name__, log=False)
 			prof = None
 
