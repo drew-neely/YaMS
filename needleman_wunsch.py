@@ -1,5 +1,5 @@
 from sequence import NucleicAcid
-from scoring import Scoring_Config, blast_config
+from scoring import Scoring_Config, blast_config, get_match_score, get_gap_score
 from math import factorial
 from timer import Timer
 
@@ -11,20 +11,7 @@ def print2darr(arr) :
 # def nCr(n,r):
 #     return factorial(n) // factorial(r) // factorial(n-r)
 
-def get_match_score(counts, scoring_config) :
-	score = 0
-	for i in range(4) :
-		count = counts[i]
-		if count > 0 :
-			for q in range(i+1, 4) :
-				count2 = counts[q]
-				score += count * count2 * scoring_config.matrix[i][q]
-			if count > 1 :
-				score += (count * (count - 1) // 2) * scoring_config.matrix[i][i]
-	return score
 
-def get_gap_score(og, cg, scoring_config) :
-	return - (og * scoring_config.open_gap + cg * scoring_config.cont_gap)
 
 
 DIAG_ARROW = 0

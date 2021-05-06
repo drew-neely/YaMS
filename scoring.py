@@ -1,6 +1,22 @@
 from sequence import NucleicAcid, Profile, Sequence
 from itertools import combinations
 
+
+def get_match_score(counts, scoring_config) :
+	score = 0
+	for i in range(4) :
+		count = counts[i]
+		if count > 0 :
+			for q in range(i+1, 4) :
+				count2 = counts[q]
+				score += count * count2 * scoring_config.matrix[i][q]
+			if count > 1 :
+				score += (count * (count - 1) // 2) * scoring_config.matrix[i][i]
+	return score
+
+def get_gap_score(og, cg, scoring_config) :
+	return - (og * scoring_config.open_gap + cg * scoring_config.cont_gap)
+
 class Scoring_Config :
 	# matrix is 2d array such that matrix[i][j] is the score of NucleicAcid[i] alligned with NucleicAcid[j]
 	def __init__(self, matrix, open_gap, cont_gap) :
@@ -40,24 +56,22 @@ def flatten_args(*_seqs) :
 
 def get_score(*_seqs, scoring_config=blast_config) :
 	seqs = flatten_args(_seqs)
+	prof = Profile(seqs)
 	score = 0
+	last_valid_col = -1
 	for i in range(max([len(s) for s in seqs])) :
-		total_gap_penalty = 0
-		nas = []
-		for seq in seqs :
-			if i < len(seq) :
-				na = seq[i]
-			else :
-				na = NucleicAcid.GAP
-			if na == NucleicAcid.GAP :
-				if i != 0 and (i-1 >= len(seq) or seq[i-1] == NucleicAcid.GAP):
-					total_gap_penalty += scoring_config.cont_gap
-				else :
-					total_gap_penalty += scoring_config.open_gap
-			else :
-				nas.append(na)
-		score -= total_gap_penalty
-		nas = combinations(nas, 2) # generate all combintions of length 2
-		for na_pair in nas :
-			score += scoring_config[na_pair]
+		nas, og, cg = prof[i]
+		if og + cg == len(prof) : # only gaps at i - nothing to do
+			assert nas == [0,0,0,0]
+		else : # at least one not gap at i
+			if i - 1 != last_valid_col : # had to skip columns
+				og, cg = 0, 0
+				for seq in seqs :
+					if seq[i] == NucleicAcid.GAP and last_valid_col >= 0 and seq[last_valid_col] == NucleicAcid.GAP :
+						cg += 1
+					elif seq[i] == NucleicAcid.GAP :
+						og += 1
+			
+			score += get_gap_score(og, cg, scoring_config) + get_match_score(nas, scoring_config)
+			last_valid_col = i
 	return score

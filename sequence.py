@@ -27,10 +27,10 @@ class NucleicAcid(Enum):
 class Profile :
 	def __init__(self, seqs) :
 		self.seqs = seqs
-		self.seq_len = len(self.seqs[0])
-		for seq in seqs :
-			if len(seq) != self.seq_len :
-				raise ValueError("All sequences in profile must be same length")
+		self.seq_len = max([len(seq) for seq in seqs])
+		# for seq in seqs :
+		# 	if len(seq) != self.seq_len :
+		# 		raise ValueError("All sequences in profile must be same length")
 	
 	def __getitem__(self, index) :
 		if isinstance(index, slice) :
@@ -57,6 +57,16 @@ class Profile :
 	def insert_gap(self, index) :
 		for seq in self.seqs :
 			seq.insert_gap(index)
+
+	def remove_external_gaps(self) :
+		for i in range(self.seq_len) :
+			e, og, cg = self[i]
+			if og + cg == len(self) :
+				assert e == [0,0,0,0]
+				for seq in self.seqs :
+					seq.remove_gap(i)
+				self.seq_len -= 1
+
 	
 	def __len__(self) :
 		return len(self.seqs)
@@ -66,6 +76,7 @@ class Profile :
 	
 	def __str__(self) :
 		return '\n'.join([str(seq) for seq in self.seqs])
+
 				
 
 class Sequence :
@@ -95,6 +106,14 @@ class Sequence :
 	def insert_gap(self, index) :
 		if index <= len(self.seq) :
 			self.seq.insert(index, NucleicAcid.GAP.value)
+	
+	def remove_gap(self, index) :
+		if index <= len(self.seq) :
+			gap = self.seq.pop(index)
+			assert gap == NucleicAcid.GAP.value, "Removed gap at non gap location"
+
+	def remove_external_gaps(self) : # remove all gaps
+		self.seq = bytearray([c for c in self.seq if c != NucleicAcid.GAP.value])
 
 	def __len__(self) :
 		return len(self.seq)
@@ -107,6 +126,10 @@ class Sequence :
 
 	def copy(self) :
 		return deepcopy(self)
+
+	def __eq__(self, other) :
+		assert isinstance(other, Sequence)
+		return self.name == other.name
 		
 
 # filename => name of fasta file containing one or more sequences

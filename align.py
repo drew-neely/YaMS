@@ -4,6 +4,7 @@ from sequence import Sequence, Profile
 from guide_tree import Tree, Node
 from needleman_wunsch import needleman_wunsch_ss, needleman_wunsch_pp
 from timer import Timer
+import sys
 
 """
 	Worker  ----- to_main -----> Main
@@ -68,7 +69,25 @@ def worker(in_channel, out_channel, config=blast_config) :
 		return
 
 
+def print_progress_bar (iteration, total):
+	"""
+	Call in a loop to create terminal progress bar
+	@params:
+		iteration   - Required  : current iteration (Int)
+		total       - Required  : total iterations (Int)
+	"""
+	# if iteration != 0 :
+	# 	sys.stdout.write("\r")
+	fraction = f"{iteration} / {total} completed"
+	filled_length = int(100 * iteration // total)
+	bar = '█' * filled_length + '-' * (100 - filled_length)
+	print(f'alignments |{bar}| {fraction}', end = '\r')
+	# Print New Line on Complete
+	if iteration == total: 
+		print()
+
 def align_tree(tree, threads=None) :
+	assert isinstance(tree, Tree)
 	if threads == None :
 		threads = cpu_count()
 	out_channel = Queue()
@@ -79,18 +98,25 @@ def align_tree(tree, threads=None) :
 		w.start()
 		workers.append(w)
 
-	for node1, node2 in tree.leaf_pairs :
+	for node1, node2 in tree.start_pairs :
 		assert node1.up is node2.up and node1.up is not None
 		out_channel.put((node1.seq, node2.seq, node1.up.id))
+	
+	# progress bar
+	num_todo = tree.alignments_to_completion()
+	completed = 0
+	print_progress_bar(completed, num_todo)
 
 	cpu_time = 0
 	while tree.root.seq is None :
 		prof, parent_id, perf_dict = in_channel.get()
-		print(f'finished alignment between :\n\t{perf_dict["names"][0]}\n\t\tand\n\t{perf_dict["names"][1]}')
-		print(f'\t\tscore: {perf_dict["start_score"]:,} -> {perf_dict["score"]:,} (nw score: {perf_dict["nw_score"]:,})')
-		print(f'\t\ttime elapsed: {perf_dict["time_elapsed"]:5.2f}s')
+		# print(f'finished alignment between :\n\t{perf_dict["names"][0]}\n\t\tand\n\t{perf_dict["names"][1]}')
+		# print(f'\t\tscore: {perf_dict["start_score"]:,} -> {perf_dict["score"]:,} (nw score: {perf_dict["nw_score"]:,})')
+		# print(f'\t\ttime elapsed: {perf_dict["time_elapsed"]:5.2f}s')
+		completed += 1
+		print_progress_bar(completed, num_todo)
+
 		cpu_time += perf_dict["time_elapsed"]
-		print()
 		parent = tree.nodes[parent_id]
 		parent.seq = prof
 		if parent.up is not None :
@@ -106,6 +132,7 @@ def align_tree(tree, threads=None) :
 	print("------------")
 	print("align_tree finished")
 	print(f"\tcpu_time: {cpu_time:5.2f}")
+	print(f"\tfinal score: {get_score(tree.root.seq.seqs):,}")
 	return tree.root.seq.seqs
 	
 
