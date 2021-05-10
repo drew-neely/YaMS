@@ -105,11 +105,9 @@ if __name__ == "__main__" :
 	"""
 	changed_nodes = None
 	for d in range(args.iterative_depth if args.iterative_depth >= 0 else 10000) :
-		print("------------")
 		dmat = get_dmat_pdist(sequences)
 		new_tree = join_neighbors(sequences, dmat)
 		new_changed_nodes = new_tree.extract_reusable(tree)
-		print("changed_nodes", changed_nodes, new_changed_nodes)
 		if new_changed_nodes == 0 :
 			print("Iteration converged via guide tree convergence")
 			break
@@ -117,7 +115,7 @@ if __name__ == "__main__" :
 			print("Iteration converged via lack of progression in guide tree")
 			break
 		else :
-			print(f"beginning iterative step {d}")
+			print(f"\nbeginning iterative step {d}")
 			changed_nodes = new_changed_nodes
 			new_tree.remove_external_gaps()
 			sequences = align_tree(new_tree, threads=args.threads)

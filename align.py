@@ -129,9 +129,9 @@ def align_tree(tree, threads=None) :
 		out_channel.put(None)
 	for w in workers : # wait for workers to die
 		w.join()
-	print("------------")
+	# print("------------")
 	print("align_tree finished")
-	print(f"\tcpu_time: {cpu_time:5.2f}")
+	# print(f"\tcpu_time: {cpu_time:5.2f}")
 	print(f"\tfinal score: {get_score(tree.root.seq.seqs):,}")
 	return tree.root.seq.seqs
 	
