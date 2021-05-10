@@ -1,2 +1,1 @@
-# DNAseqASF
-DNA Sequence Alignment for Systematics Final project
+Resources/README.md
