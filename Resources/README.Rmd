@@ -55,7 +55,7 @@ The bulk of the time and effort put into YaMS was spent on creating an alignment
 
 The input to a YaMS is a single FASTA file that contains two or more DNA sequences. The sequences are identified by their names in the FASTA file, so the names must be unique. Once the FASTA file is read into memory and parsed, the alignment process begins. Both stage output a valid alignment, but the second attempts to refine and improve the alignment output by the first.
 
-![Flow chart describing the stages and intermediate steps of a YaMS alignment](./Flow_chart.png)
+![Flow chart describing the stages and intermediate steps of a YaMS alignment](Resources/Flow_chart.png)
 
 ### Pairwise Alignment
 
@@ -64,7 +64,7 @@ The fundamental process that drives a progressive alignment is a pairwise alignm
 #### Needleman-Wunsch
 The Needleman-Wunsch algorithm uses a scoring function that assigns a value to each possible pair of Nucleic Acids and a constant gap penalty.
 
-![The basic Needleman-Wunsch algorithm: g = gap penalty, s(x,y) = score of aligning nucleic acids x and y.  $^{[4]}$](nw_level1.png)
+![The basic Needleman-Wunsch algorithm: g = gap penalty, s(x,y) = score of aligning nucleic acids x and y.  $^{[4]}$](Resources/nw_level1.png)
 
 Given two sequences x and y, where $x_i$, $y_i$ are the $i^{th}$ nucleic acids in each sequence, the algorithm works by computing a score matrix, V, and a direction matrix, D. $V_{i,j}$ is the best possible score of the alignment between the first i elements of x and the first j elements of y. Thus, the $i^{th}$ index in the first row and column represent aligning the $i^{th}$ element of one sequence to the first element of the other by inserting gaps at the beginning of one of the sequences. For this reason the first row and column are initialized to $i \times g$. For every other index, $V_{i,j}$ is a function of the index to the left, the index above and the index to the left diagonal. These three indices contain the best score for the three possible alignments for the previous nucleic acids in the sequence. The score of aligning $x_i$ and $y_j$ may be the score of aligning:
 
@@ -90,7 +90,7 @@ The penalty for inserting a gap at $x_i$ or $y_j$ (ie. letting $D_{i,j}$ equal L
 
 Choices 1 and 3 involve inserting a gap after a match or mismatch, so the opening gap penalty should be used. Choices 2 and 4 involve inserting a gap after a gap, so the gap continuation penalty should be used. Finally, choice 5 should use the score $s(x_i,y_j)$.$^{[6]}$
 
-![Needleman-Wunsch algorithm with affine gaps.  $^{[6]}$](nw_level2.png)
+![Needleman-Wunsch algorithm with affine gaps.  $^{[6]}$](Resources/nw_level2.png)
 
 
 This is implemented through the use of 3 additional matrices F, G and H. $F_{i,j}$ is the score of choice 5. $G_{i,j}$ is the maximum of choices 1 and 2. $H_{i,j}$ is the maximum of choice 3 and 4. As such, matrix F contains the score yielded when a match is allowed, matrix G contains the scores when a gap is inserted in y, and matrix H contains the scores when a gap is inserted in x. The best of the five scores is stored in matrix V, and the choice made is stored in matrix D represented by an arrow. The optimal alignment is constructed from matrix D in the same way.
@@ -101,7 +101,7 @@ To perform an MSA, it must be possible to perform an alignment between more than
 
 When a pofile-profile alignment inserts a gap in one of the profiles at the $i^{th}$ position, it inserts a gap in all of that profile's sequences at the $i^{th}$ position. Unlike the sequence-sequence alignment algorithms described above, profile-profile alignment is not globally optimal. However, this restriction is applied in order to improve the computability of alignments. Finding an optimal alignment between n sequences of length m requires $O(m^n)$ time and space.$^{[3]}$ For all reasonably sized inputs, this is not acceptable. A single alignment between two profiles containing any number of sequences of length m requires only $O(m^2)$. Thus, profile-profile alignments are a necessary tradeoff between accuracy and performance.
 
-![Profile-Profile Needleman-Wunsch algorithm with affine gaps](nw_level3.png)
+![Profile-Profile Needleman-Wunsch algorithm with affine gaps](Resources/nw_level3.png)
 
 The two differences between a profile-profile and sequence-sequence alignment in YaMS are the way the match scores are calculated and the way gap types are identified. Since each profile may contain multiple nucleic acids at each index, the score of aligning two indices is calculated by taking the sum of scores of all pairs of nucleic acids that are aligned at the same index. The function $mm_score$ takes the counts of each amino acid and computes this score combinatorially. Much like the sequence-sequence version of Needleman-Wunsch, the profile-profile version builds 4 matrices that contain the maximum score of aligning every pair of nucleic acids under 5 different conditions. However, since the profile inputs are MSAs themselves, there may already be gaps in some sequences. Thus, inserting a gap at a given position in a profile may be inserting an open gap in some the sequences and inserting a gap extension in others. Additionally, aligning one index of a profile to an index in another may still result in gaps at those indices. This algorithm takes this into account by counting and weighing existing gaps as well as determining the types of gaps that would be inserted at each place in each sequence.
 

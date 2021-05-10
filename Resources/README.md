@@ -123,7 +123,7 @@ valid alignment, but the second attempts to refine and improve the
 alignment output by the first.
 
 ![Flow chart describing the stages and intermediate steps of a YaMS
-alignment](./Flow_chart.png)
+alignment](Resources/Flow_chart.png)
 
 ### Pairwise Alignment
 
@@ -144,7 +144,8 @@ The Needleman-Wunsch algorithm uses a scoring function that assigns a
 value to each possible pair of Nucleic Acids and a constant gap penalty.
 
 ![The basic Needleman-Wunsch algorithm: g = gap penalty, s(x,y) = score
-of aligning nucleic acids x and y. **<sup>\[4\]</sup>](nw_level1.png)
+of aligning nucleic acids x and y.
+**<sup>\[4\]</sup>](Resources/nw_level1.png)
 
 Given two sequences x and y, where *x*<sub>*i*</sub>, *y*<sub>*i*</sub>
 are the *i*<sup>*t**h*</sup> nucleic acids in each sequence, the
@@ -220,7 +221,7 @@ used. Finally, choice 5 should use the score
 *s*(*x*<sub>*i*</sub>, *y*<sub>*j*</sub>).**<sup>\[6\]</sup>
 
 ![Needleman-Wunsch algorithm with affine gaps.
-**<sup>\[6\]</sup>](nw_level2.png)
+**<sup>\[6\]</sup>](Resources/nw_level2.png)
 
 This is implemented through the use of 3 additional matrices F, G and H.
 *F*<sub>*i*, *j*</sub> is the score of choice 5. *G*<sub>*i*, *j*</sub>
@@ -273,7 +274,7 @@ requires only *O*(*m*<sup>2</sup>). Thus, profile-profile alignments are
 a necessary tradeoff between accuracy and performance.
 
 ![Profile-Profile Needleman-Wunsch algorithm with affine
-gaps](nw_level3.png)
+gaps](Resources/nw_level3.png)
 
 The two differences between a profile-profile and sequence-sequence
 alignment in YaMS are the way the match scores are calculated and the
